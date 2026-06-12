@@ -81,17 +81,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Personal Historian — Preserve Your Life Story" },
-      { name: "description", content: "Capture daily memories, discover recurring themes, and shape your experiences into a lasting personal biography." },
+      {
+        name: "description",
+        content:
+          "Capture daily memories, discover recurring themes, and shape your experiences into a lasting personal biography.",
+      },
       { name: "author", content: "Personal Historian" },
       { property: "og:title", content: "Personal Historian" },
-      { property: "og:description", content: "One thoughtful question a day. One extraordinary life story." },
+      {
+        property: "og:description",
+        content: "One thoughtful question a day. One extraordinary life story.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,500;0,600;1,500&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,500;0,600;1,500&display=swap",
+      },
       { rel: "manifest", href: "/manifest.json" },
       {
         rel: "stylesheet",
@@ -121,7 +131,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  useEffect(() => { if ("serviceWorker" in navigator && import.meta.env.PROD) navigator.serviceWorker.register("/sw.js").catch(() => undefined); }, []);
+  useEffect(() => {
+    if ("serviceWorker" in navigator && import.meta.env.PROD)
+      navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

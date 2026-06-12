@@ -1,4 +1,146 @@
-import { createFileRoute } from "@tanstack/react-router"; import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"; import { useServerFn } from "@tanstack/react-start"; import { BookOpen, Download, Feather, LoaderCircle } from "lucide-react"; import { useRef, useState } from "react"; import ReactMarkdown from "react-markdown"; import toast from "react-hot-toast";
-import { AppShell } from "@/components/app-shell"; import { RouteGuard } from "@/components/route-guard"; import { Button } from "@/components/ui/button"; import { generateStory } from "@/lib/ai.functions"; import { categoryLabels, loadStoryData, type Category } from "@/lib/historian"; import { downloadBiography } from "@/lib/pdf";
-export const Route = createFileRoute("/biography")({ component: () => <RouteGuard><AppShell><BiographyPage /></AppShell></RouteGuard>, head: () => ({ meta: [{ title: "Your Biography — Personal Historian" }, { name: "description", content: "Shape your preserved memories into memoir chapters and a personal biography." }] }) });
-function BiographyPage() { const query = useQuery({ queryKey: ["story-data"], queryFn: loadStoryData }); const client = useQueryClient(); const generate = useServerFn(generateStory); const [selected, setSelected] = useState<number | null>(null); const article = useRef<HTMLElement>(null); const mutation = useMutation({ mutationFn: (input: { kind: "chapter"|"biography"; category?: Category }) => generate({ data: input }), onSuccess: (value) => { setSelected(value.id); client.invalidateQueries({ queryKey: ["story-data"] }); toast.success("A new piece of your story is ready."); }, onError: (error) => toast.error(error.message) }); const writings = query.data?.writing ?? []; const active = writings.find((item) => item.id === selected) ?? writings[0]; return <div><div className="flex flex-wrap items-end justify-between gap-5"><div><p className="text-sm font-semibold uppercase tracking-[.15em] text-primary">Your long-form story</p><h1 className="mt-2 font-serif text-4xl font-semibold sm:text-5xl">The chapters of your life</h1><p className="mt-3 max-w-2xl text-muted-foreground">Transform your own words into a narrative you can revisit, refine, and keep.</p></div>{active && <Button variant="outline" onClick={() => article.current && downloadBiography(article.current, "my-life-remembered.pdf")}><Download />Download PDF</Button>}</div><div className="mt-10 grid gap-8 lg:grid-cols-[19rem_1fr]"><aside><Button className="w-full" onClick={() => mutation.mutate({ kind: "biography" })} disabled={mutation.isPending}>{mutation.isPending ? <LoaderCircle className="animate-spin" /> : <BookOpen />}Create full biography</Button><p className="mb-3 mt-7 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Create a chapter</p><div className="grid grid-cols-2 gap-2 lg:grid-cols-1">{Object.entries(categoryLabels).map(([category,label]) => <Button key={category} variant="outline" className="justify-start" disabled={mutation.isPending} onClick={() => mutation.mutate({ kind: "chapter", category: category as Category })}><Feather />{label}</Button>)}</div>{writings.length > 0 && <><p className="mb-3 mt-7 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Saved writing</p><div className="space-y-1">{writings.map((item) => <button key={item.id} onClick={() => setSelected(item.id)} className={`w-full rounded-lg px-3 py-2 text-left text-sm transition ${active?.id === item.id ? "bg-accent font-medium" : "text-muted-foreground hover:bg-accent"}`}>{item.title}</button>)}</div></>}</aside><section className="min-h-[32rem] rounded-[2rem] border bg-card p-6 sm:p-12">{active ? <article ref={article} className="prose-historian"><p className="mb-3 text-xs uppercase tracking-[.2em] text-primary">Personal archive</p><h2 className="mb-8 font-serif text-4xl font-semibold">{active.title}</h2><ReactMarkdown>{active.content}</ReactMarkdown></article> : <div className="flex min-h-[28rem] flex-col items-center justify-center text-center"><div className="grid size-16 place-items-center rounded-full bg-primary/10 text-primary"><BookOpen className="size-7" /></div><h2 className="mt-6 font-serif text-3xl">Your pages are waiting</h2><p className="mt-3 max-w-md text-muted-foreground">Preserve a few memories, then create a chapter or your complete biography here.</p></div>}</section></div></div>; }
+import { createFileRoute } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { BookOpen, Download, Feather, LoaderCircle } from "lucide-react";
+import { useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import toast from "react-hot-toast";
+import { AppShell } from "@/components/app-shell";
+import { RouteGuard } from "@/components/route-guard";
+import { Button } from "@/components/ui/button";
+import { generateStory } from "@/lib/ai.functions";
+import { categoryLabels, loadStoryData, type Category } from "@/lib/historian";
+import { downloadBiography } from "@/lib/pdf";
+export const Route = createFileRoute("/biography")({
+  component: () => (
+    <RouteGuard>
+      <AppShell>
+        <BiographyPage />
+      </AppShell>
+    </RouteGuard>
+  ),
+  head: () => ({
+    meta: [
+      { title: "Your Biography — Personal Historian" },
+      {
+        name: "description",
+        content: "Shape your preserved memories into memoir chapters and a personal biography.",
+      },
+    ],
+  }),
+});
+function BiographyPage() {
+  const query = useQuery({ queryKey: ["story-data"], queryFn: loadStoryData });
+  const client = useQueryClient();
+  const generate = useServerFn(generateStory);
+  const [selected, setSelected] = useState<number | null>(null);
+  const article = useRef<HTMLElement>(null);
+  const mutation = useMutation({
+    mutationFn: (input: { kind: "chapter" | "biography"; category?: Category }) =>
+      generate({ data: input }),
+    onSuccess: (value) => {
+      setSelected(value.id);
+      client.invalidateQueries({ queryKey: ["story-data"] });
+      toast.success("A new piece of your story is ready.");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+  const writings = query.data?.writing ?? [];
+  const active = writings.find((item) => item.id === selected) ?? writings[0];
+  return (
+    <div>
+      <div className="flex flex-wrap items-end justify-between gap-5">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[.15em] text-primary">
+            Your long-form story
+          </p>
+          <h1 className="mt-2 font-serif text-4xl font-semibold sm:text-5xl">
+            The chapters of your life
+          </h1>
+          <p className="mt-3 max-w-2xl text-muted-foreground">
+            Transform your own words into a narrative you can revisit, refine, and keep.
+          </p>
+        </div>
+        {active && (
+          <Button
+            variant="outline"
+            onClick={() =>
+              article.current && downloadBiography(article.current, "my-life-remembered.pdf")
+            }
+          >
+            <Download />
+            Download PDF
+          </Button>
+        )}
+      </div>
+      <div className="mt-10 grid gap-8 lg:grid-cols-[19rem_1fr]">
+        <aside>
+          <Button
+            className="w-full"
+            onClick={() => mutation.mutate({ kind: "biography" })}
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending ? <LoaderCircle className="animate-spin" /> : <BookOpen />}Create
+            full biography
+          </Button>
+          <p className="mb-3 mt-7 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Create a chapter
+          </p>
+          <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
+            {Object.entries(categoryLabels).map(([category, label]) => (
+              <Button
+                key={category}
+                variant="outline"
+                className="justify-start"
+                disabled={mutation.isPending}
+                onClick={() => mutation.mutate({ kind: "chapter", category: category as Category })}
+              >
+                <Feather />
+                {label}
+              </Button>
+            ))}
+          </div>
+          {writings.length > 0 && (
+            <>
+              <p className="mb-3 mt-7 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Saved writing
+              </p>
+              <div className="space-y-1">
+                {writings.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setSelected(item.id)}
+                    className={`w-full rounded-lg px-3 py-2 text-left text-sm transition ${active?.id === item.id ? "bg-accent font-medium" : "text-muted-foreground hover:bg-accent"}`}
+                  >
+                    {item.title}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </aside>
+        <section className="min-h-[32rem] rounded-[2rem] border bg-card p-6 sm:p-12">
+          {active ? (
+            <article ref={article} className="prose-historian">
+              <p className="mb-3 text-xs uppercase tracking-[.2em] text-primary">
+                Personal archive
+              </p>
+              <h2 className="mb-8 font-serif text-4xl font-semibold">{active.title}</h2>
+              <ReactMarkdown>{active.content}</ReactMarkdown>
+            </article>
+          ) : (
+            <div className="flex min-h-[28rem] flex-col items-center justify-center text-center">
+              <div className="grid size-16 place-items-center rounded-full bg-primary/10 text-primary">
+                <BookOpen className="size-7" />
+              </div>
+              <h2 className="mt-6 font-serif text-3xl">Your pages are waiting</h2>
+              <p className="mt-3 max-w-md text-muted-foreground">
+                Preserve a few memories, then create a chapter or your complete biography here.
+              </p>
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}

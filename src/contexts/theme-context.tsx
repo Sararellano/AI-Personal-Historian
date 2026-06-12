@@ -18,7 +18,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     window.localStorage.setItem("personal-historian-theme", theme);
   }, [theme]);
 
-  const value = useMemo(() => ({ theme, toggleTheme: () => setTheme((current) => current === "dark" ? "light" : "dark") }), [theme]);
+  const value = useMemo(
+    () => ({
+      theme,
+      toggleTheme: () => setTheme((current) => (current === "dark" ? "light" : "dark")),
+    }),
+    [theme],
+  );
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 

@@ -9,14 +9,38 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/contexts/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { loadStoryData } from "@/lib/historian";
 
 export const Route = createFileRoute("/profile")({
-  component: () => <RouteGuard><AppShell><ProfilePage /></AppShell></RouteGuard>,
-  head: () => ({ meta: [{ title: "Profile & Privacy — Personal Historian" }, { name: "description", content: "Manage your Personal Historian profile, archive, and privacy settings." }] }),
+  component: () => (
+    <RouteGuard>
+      <AppShell>
+        <ProfilePage />
+      </AppShell>
+    </RouteGuard>
+  ),
+  head: () => ({
+    meta: [
+      { title: "Profile & Privacy — Personal Historian" },
+      {
+        name: "description",
+        content: "Manage your Personal Historian profile, archive, and privacy settings.",
+      },
+    ],
+  }),
 });
 
 function ProfilePage() {
@@ -24,10 +48,140 @@ function ProfilePage() {
   const [name, setName] = useState("");
   const navigate = useNavigate();
   const client = useQueryClient();
-  const profile = useQuery({ queryKey: ["profile", user?.id], enabled: !!user, queryFn: async () => { if (!user) return null; const result = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(); if (result.error) throw result.error; return result.data; } });
+  const profile = useQuery({
+    queryKey: ["profile", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      if (!user) return null;
+      const result = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+      if (result.error) throw result.error;
+      return result.data;
+    },
+  });
   useEffect(() => setName(profile.data?.display_name ?? ""), [profile.data]);
-  const save = useMutation({ mutationFn: async () => { if (!user) throw new Error("Please sign in."); const result = await supabase.from("profiles").upsert({ id: user.id, email: user.email ?? "", display_name: name.trim() || null }); if (result.error) throw result.error; }, onSuccess: () => { toast.success("Profile updated."); client.invalidateQueries({ queryKey: ["profile"] }); }, onError: (error) => toast.error(error.message) });
-  const exportData = async () => { const story = await loadStoryData(); const blob = new Blob([JSON.stringify({ profile: profile.data, ...story }, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = url; link.download = "personal-historian-archive.json"; link.click(); URL.revokeObjectURL(url); };
-  const remove = async () => { if (!user) return; await supabase.from("generated_writing").delete().eq("user_id", user.id); await supabase.from("recurring_topics").delete().eq("user_id", user.id); await supabase.from("answers").delete().eq("user_id", user.id); await supabase.from("profiles").delete().eq("id", user.id); await supabase.auth.signOut(); client.clear(); toast.success("Your archive has been deleted."); navigate({ to: "/", replace: true }); };
-  return <div className="mx-auto max-w-3xl"><p className="text-sm font-semibold uppercase tracking-[.15em] text-primary">Profile & privacy</p><h1 className="mt-2 font-serif text-4xl font-semibold sm:text-5xl">Your archive, your control</h1><div className="mt-10 divide-y rounded-3xl border bg-card"><section className="p-6 sm:p-8"><h2 className="font-serif text-2xl font-semibold">Personal details</h2><div className="mt-6 grid gap-5 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="profile-email">Email</Label><Input id="profile-email" value={user?.email ?? ""} disabled /></div><div className="space-y-2"><Label htmlFor="display-name">Display name</Label><Input id="display-name" value={name} onChange={(event) => setName(event.target.value)} maxLength={80} /></div></div><Button className="mt-5" onClick={() => save.mutate()} disabled={save.isPending}><Save />Save changes</Button></section><section className="flex items-center justify-between gap-4 p-6 sm:p-8"><div><h2 className="flex items-center gap-2 font-serif text-2xl font-semibold"><Moon className="size-5 text-primary" />Appearance</h2><p className="mt-1 text-sm text-muted-foreground">Switch between light and dark reading themes.</p></div><ThemeToggle /></section><section className="p-6 sm:p-8"><h2 className="font-serif text-2xl font-semibold">Your data</h2><p className="mt-2 text-sm text-muted-foreground">Download a complete machine-readable copy of your archive.</p><Button variant="outline" className="mt-5" onClick={exportData}><Download />Export archive</Button></section><section className="p-6 sm:p-8"><h2 className="font-serif text-2xl font-semibold text-destructive">Delete archive</h2><p className="mt-2 text-sm text-muted-foreground">Permanently remove your profile and all saved memories.</p><AlertDialog><AlertDialogTrigger asChild><Button variant="destructive" className="mt-5"><Trash2 />Delete my archive</Button></AlertDialogTrigger><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete every memory?</AlertDialogTitle><AlertDialogDescription>Your profile, answers, analyses, themes, chapters, and biography will be permanently removed.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Keep my archive</AlertDialogCancel><AlertDialogAction onClick={remove} className="bg-destructive text-destructive-foreground">Delete permanently</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog></section></div></div>;
+  const save = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error("Please sign in.");
+      const result = await supabase
+        .from("profiles")
+        .upsert({ id: user.id, email: user.email ?? "", display_name: name.trim() || null });
+      if (result.error) throw result.error;
+    },
+    onSuccess: () => {
+      toast.success("Profile updated.");
+      client.invalidateQueries({ queryKey: ["profile"] });
+    },
+    onError: (error) => toast.error(error.message),
+  });
+  const exportData = async () => {
+    const story = await loadStoryData();
+    const blob = new Blob([JSON.stringify({ profile: profile.data, ...story }, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "personal-historian-archive.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+  const remove = async () => {
+    if (!user) return;
+    await supabase.from("generated_writing").delete().eq("user_id", user.id);
+    await supabase.from("recurring_topics").delete().eq("user_id", user.id);
+    await supabase.from("answers").delete().eq("user_id", user.id);
+    await supabase.from("profiles").delete().eq("id", user.id);
+    await supabase.auth.signOut();
+    client.clear();
+    toast.success("Your archive has been deleted.");
+    navigate({ to: "/", replace: true });
+  };
+  return (
+    <div className="mx-auto max-w-3xl">
+      <p className="text-sm font-semibold uppercase tracking-[.15em] text-primary">
+        Profile & privacy
+      </p>
+      <h1 className="mt-2 font-serif text-4xl font-semibold sm:text-5xl">
+        Your archive, your control
+      </h1>
+      <div className="mt-10 divide-y rounded-3xl border bg-card">
+        <section className="p-6 sm:p-8">
+          <h2 className="font-serif text-2xl font-semibold">Personal details</h2>
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="profile-email">Email</Label>
+              <Input id="profile-email" value={user?.email ?? ""} disabled />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="display-name">Display name</Label>
+              <Input
+                id="display-name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                maxLength={80}
+              />
+            </div>
+          </div>
+          <Button className="mt-5" onClick={() => save.mutate()} disabled={save.isPending}>
+            <Save />
+            Save changes
+          </Button>
+        </section>
+        <section className="flex items-center justify-between gap-4 p-6 sm:p-8">
+          <div>
+            <h2 className="flex items-center gap-2 font-serif text-2xl font-semibold">
+              <Moon className="size-5 text-primary" />
+              Appearance
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Switch between light and dark reading themes.
+            </p>
+          </div>
+          <ThemeToggle />
+        </section>
+        <section className="p-6 sm:p-8">
+          <h2 className="font-serif text-2xl font-semibold">Your data</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Download a complete machine-readable copy of your archive.
+          </p>
+          <Button variant="outline" className="mt-5" onClick={exportData}>
+            <Download />
+            Export archive
+          </Button>
+        </section>
+        <section className="p-6 sm:p-8">
+          <h2 className="font-serif text-2xl font-semibold text-destructive">Delete archive</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Permanently remove your profile and all saved memories.
+          </p>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" className="mt-5">
+                <Trash2 />
+                Delete my archive
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete every memory?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Your profile, answers, analyses, themes, chapters, and biography will be
+                  permanently removed.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Keep my archive</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={remove}
+                  className="bg-destructive text-destructive-foreground"
+                >
+                  Delete permanently
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </section>
+      </div>
+    </div>
+  );
 }

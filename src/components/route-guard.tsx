@@ -6,7 +6,9 @@ import { LoadingScreen } from "@/components/loading-screen";
 export function RouteGuard({ children }: { children: ReactNode }) {
   const { loading, user } = useAuth();
   const navigate = useNavigate();
-  useEffect(() => { if (!loading && !user) navigate({ to: "/auth", replace: true }); }, [loading, navigate, user]);
+  useEffect(() => {
+    if (!loading && !user) navigate({ to: "/auth", replace: true });
+  }, [loading, navigate, user]);
   if (loading || !user) return <LoadingScreen />;
   return <>{children}</>;
 }

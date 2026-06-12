@@ -42,11 +42,11 @@ Personal Historian is a private, responsive memory journal. It offers one reflec
 
 ## Environment variables
 
-| Variable | Scope | Purpose |
-| --- | --- | --- |
-| `VITE_SUPABASE_URL` | Public/browser | Connected backend URL; managed automatically in Lovable |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Public/browser | Publishable backend key; managed automatically in Lovable |
-| `LOVABLE_API_KEY` | Server only | Authenticates requests to Lovable AI; never expose with a `VITE_` prefix |
+| Variable                        | Scope          | Purpose                                                                  |
+| ------------------------------- | -------------- | ------------------------------------------------------------------------ |
+| `VITE_SUPABASE_URL`             | Public/browser | Connected backend URL; managed automatically in Lovable                  |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Public/browser | Publishable backend key; managed automatically in Lovable                |
+| `LOVABLE_API_KEY`               | Server only    | Authenticates requests to Lovable AI; never expose with a `VITE_` prefix |
 
 The app intentionally keeps AI calls in authenticated server functions. Provider credentials and prompts are not shipped to browsers.
 

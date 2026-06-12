@@ -30,13 +30,61 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-          <Link to="/daily" className="flex items-center gap-2 font-serif text-lg font-semibold"><span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground"><Sparkles className="size-4" /></span>Personal Historian</Link>
+          <Link to="/daily" className="flex items-center gap-2 font-serif text-lg font-semibold">
+            <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
+              <Sparkles className="size-4" />
+            </span>
+            Personal Historian
+          </Link>
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Main navigation">
-            {links.map(({ to, label, icon: Icon }) => <Link key={to} to={to} className={cn("flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground", location.pathname === to && "bg-accent text-foreground")}><Icon className="size-4" />{label}</Link>)}
+            {links.map(({ to, label, icon: Icon }) => (
+              <Link
+                key={to}
+                to={to}
+                className={cn(
+                  "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground",
+                  location.pathname === to && "bg-accent text-foreground",
+                )}
+              >
+                <Icon className="size-4" />
+                {label}
+              </Link>
+            ))}
           </nav>
-          <div className="flex items-center gap-1"><ThemeToggle /><Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={signOut}>Sign out</Button><Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen((value) => !value)} aria-label="Toggle menu">{open ? <X /> : <Menu />}</Button></div>
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+            <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={signOut}>
+              Sign out
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setOpen((value) => !value)}
+              aria-label="Toggle menu"
+            >
+              {open ? <X /> : <Menu />}
+            </Button>
+          </div>
         </div>
-        {open && <nav className="border-t px-4 py-3 lg:hidden" aria-label="Mobile navigation">{links.map(({ to, label, icon: Icon }) => <Link key={to} to={to} onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium"><Icon className="size-4" />{label}</Link>)}<Button variant="ghost" className="w-full justify-start" onClick={signOut}>Sign out</Button></nav>}
+        {open && (
+          <nav className="border-t px-4 py-3 lg:hidden" aria-label="Mobile navigation">
+            {links.map(({ to, label, icon: Icon }) => (
+              <Link
+                key={to}
+                to={to}
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium"
+              >
+                <Icon className="size-4" />
+                {label}
+              </Link>
+            ))}
+            <Button variant="ghost" className="w-full justify-start" onClick={signOut}>
+              Sign out
+            </Button>
+          </nav>
+        )}
       </header>
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">{children}</main>
     </div>
