@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProgressRouteImport } from './routes/progress'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MemoriesRouteImport } from './routes/memories'
 import { Route as DailyRouteImport } from './routes/daily'
 import { Route as BiographyRouteImport } from './routes/biography'
@@ -19,6 +20,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const ProgressRoute = ProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MemoriesRoute = MemoriesRouteImport.update({
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/biography': typeof BiographyRoute
   '/daily': typeof DailyRoute
   '/memories': typeof MemoriesRoute
+  '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/biography': typeof BiographyRoute
   '/daily': typeof DailyRoute
   '/memories': typeof MemoriesRoute
+  '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
 }
 export interface FileRoutesById {
@@ -70,13 +78,28 @@ export interface FileRoutesById {
   '/biography': typeof BiographyRoute
   '/daily': typeof DailyRoute
   '/memories': typeof MemoriesRoute
+  '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/biography' | '/daily' | '/memories' | '/progress'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/biography'
+    | '/daily'
+    | '/memories'
+    | '/profile'
+    | '/progress'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/biography' | '/daily' | '/memories' | '/progress'
+  to:
+    | '/'
+    | '/auth'
+    | '/biography'
+    | '/daily'
+    | '/memories'
+    | '/profile'
+    | '/progress'
   id:
     | '__root__'
     | '/'
@@ -84,6 +107,7 @@ export interface FileRouteTypes {
     | '/biography'
     | '/daily'
     | '/memories'
+    | '/profile'
     | '/progress'
   fileRoutesById: FileRoutesById
 }
@@ -93,6 +117,7 @@ export interface RootRouteChildren {
   BiographyRoute: typeof BiographyRoute
   DailyRoute: typeof DailyRoute
   MemoriesRoute: typeof MemoriesRoute
+  ProfileRoute: typeof ProfileRoute
   ProgressRoute: typeof ProgressRoute
 }
 
@@ -103,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/progress'
       fullPath: '/progress'
       preLoaderRoute: typeof ProgressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/memories': {
@@ -149,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   BiographyRoute: BiographyRoute,
   DailyRoute: DailyRoute,
   MemoriesRoute: MemoriesRoute,
+  ProfileRoute: ProfileRoute,
   ProgressRoute: ProgressRoute,
 }
 export const routeTree = rootRouteImport
