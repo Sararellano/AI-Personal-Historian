@@ -14,14 +14,6 @@ Personal Historian is a private, responsive memory journal. It offers one reflec
 - Shareable lesson cards, responsive navigation, dark mode, and accessible controls
 - Installable web app shell with basic offline caching
 
-## Stack
-
-- React 19, Vite, TypeScript, Tailwind CSS
-- TanStack Start file-based routing and server functions
-- Lovable Cloud database, authentication, and row-level access policies
-- Lovable AI through the Vercel AI SDK
-- date-fns, Recharts, React Markdown, html2pdf.js, canvas-confetti, react-hot-toast
-
 ## Local setup
 
 1. Install [Bun](https://bun.sh/) or Node.js 20+.
@@ -31,8 +23,8 @@ Personal Historian is a private, responsive memory journal. It offers one reflec
    bun install
    ```
 
-3. The connected Lovable Cloud environment supplies the database and public client configuration. For a self-hosted environment, configure equivalent public database URL/key variables and a server-only `LOVABLE_API_KEY`.
-4. Start the development server:
+<!-- 3. The connected Lovable Cloud environment supplies the database and public client configuration. For a self-hosted environment, configure equivalent public database URL/key variables and a server-only `LOVABLE_API_KEY`. -->
+3. Start the development server:
 
    ```bash
    bun run dev
