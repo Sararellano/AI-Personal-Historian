@@ -38,7 +38,7 @@ Personal Historian is a private, responsive memory journal. It offers one reflec
    bun run dev
    ```
 
-5. Open the displayed local URL, create an account, confirm the email, and begin writing.
+<!-- 5. Open the displayed local URL, create an account, confirm the email, and begin writing.
 
 ## Environment variables
 
@@ -80,4 +80,4 @@ bun run build     # production bundle
 bun run preview   # preview the bundle
 bun run lint      # lint source files
 bun run format    # format the project
-```
+``` -->
