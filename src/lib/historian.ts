@@ -88,7 +88,7 @@ export async function loadStoryData() {
 
 export function calculateStreak(dates: string[]) {
   const unique = new Set(dates);
-  let cursor = new Date();
+  const cursor = new Date();
   if (!unique.has(format(cursor, "yyyy-MM-dd"))) cursor.setDate(cursor.getDate() - 1);
   let count = 0;
   while (unique.has(format(cursor, "yyyy-MM-dd"))) {
